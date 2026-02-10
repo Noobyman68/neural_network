@@ -4,6 +4,7 @@
 #define SQRT_ITERATIONS 2 // Set for float values, adjust for larger types
 #define exp(double val) exp_d(double val)
 
+const long long zero = 0; // global value for reference by void pointers
 
 // General
 // Square Root Functions
@@ -97,11 +98,14 @@ static double summation_f(double *vals, double(*fn)(double val)){
 // Activation Functions
 
 // ReLu Activation Function
-float ReLu_f(float val1, float val2){
-
-}
-double ReLu_d(double val1, double val2){
-
+// float ReLu_f(float val1){
+//   return val1 > 0 ? val1 : 0;
+// }
+// double ReLu_d(double val1){
+//   return val1 > 0 ? val1 : 0;
+// }
+void* ReLu(void *val){
+  return *((char*)val) & 0x80  ? val : &zero; //dereference first byte to check sign bit
 }
 
 // sigmoid Activation Function
