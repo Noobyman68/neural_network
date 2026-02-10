@@ -98,15 +98,41 @@ static double summation_f(double *vals, double(*fn)(double val)){
 // Activation Functions
 
 // ReLu Activation Function
-// float ReLu_f(float val1){
-//   return val1 > 0 ? val1 : 0;
+// float ReLu_f(float val){
+//   return val > 0 ? val : 0;
 // }
-// double ReLu_d(double val1){
-//   return val1 > 0 ? val1 : 0;
+// double ReLu_d(double val){
+//   return val > 0 ? val : 0;
 // }
 void* ReLu(void *val){
   return *((char*)val) & 0x80  ? val : &zero; //dereference first byte to check sign bit
 }
+
+// Leaky ReLu Activattion Function
+float LeLu_f(float val1, float val2){
+  if (val <= 0 || val2 >= 1){
+    return val1 > 0 ? val1 : 0;
+  }
+  val2 *= val1; // change is local so no side effects
+  return val1 > val2 ? val1 : val2;
+}
+double LeLu_d(double val1){
+  if (val <= 0 || val2 >= 1){
+    return val1 > 0 ? val1 : 0;
+  }
+  val2 *= val1; // change is local so no side effects
+  return val1 > val2 ? val1 : val2;
+}
+
+// ELU Activation Function
+float eLu(float val, float alpha){
+  return val >= 0 ? val : (alpha*(exp(val)-1));
+
+double eLu(double val, double alpha){
+  return val >= 0 ? val : (alpha*(exp(val)-1));
+
+}
+
 
 // sigmoid Activation Function
 float sigmoid_f(float val){
@@ -117,6 +143,12 @@ float sigmoid_f(float val){
 double sigmoid_d(double val){
   double x = exp(val);
   return (x/(x+1));
+}
+
+float tanh_f(float val){
+}
+
+double tanh_d(double val){
 }
 
 // Softmax Activation Function
