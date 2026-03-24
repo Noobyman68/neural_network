@@ -18,8 +18,10 @@ static float sqrt_f(float val){
 static double sqrt_d(double val){
   double next = (val >> 1) + 0x5f3759df; //approximation from bit shift + bias
   for(int i = 0; i < SQRT_ITERATIONS+1; i++){
-    next = (next + (val / next)) / 2;
+    //avg of current guess and approximate root based on current guess
+    next = (next + (val / next)) / 2; 
   }
+
   return next;
 }
 // Horner Function
@@ -33,13 +35,20 @@ static float horner_f(float a, float *vals, int size){
   }
   return result;
 }
+/*
+ * representation of linear expression to simplifiy calculations
+ * for expression ax^3 + bx^2 + cx + d
+ * we can say (((a)x+b)x + c)x + d
+ * so we accumulate coefficents starting from greatest
+ * and multiply by the acummulated expression by x each time
+*/
 static double horner_d(double a, double *vals, int size){
   if(size == 1){
     return a;
   }
   double result = 0;
   for(int i = size - 1; i >= 0; i--){
-    result = result * r + vals[i];
+    result = result * a + vals[i];
   }
   return result;
 }
@@ -73,12 +82,17 @@ const double exp_size = 5;
 // }
 
 
+/*
+ * split into ln(x) + kln(2)
+ * val * (ln(2))^(-1) to get k
+ * subtract approximation of kln(2) to leave only ln(x)
+ * use horner polynomial for approximation used in final equation for ln(val)
+*/
 static double exp_f(double val){
-  // 0 case
   if(val == 0){
-    return val;
+    return val; //exp(0) = 0
   }
-  const int k = (int)(val*invln2);
+  const int k = (int)(val*invln2); 
   double r = val - (k*ln2_hi) - (k*ln2_lo);
   double coefficents[exp_size] = {exp_C1, exp_C2, exp_C3, exp_C4, exp_C5};
   double R = horner_d(r*r, coefficents, exp_size);
@@ -105,23 +119,15 @@ static double summation_f(double *vals, double(*fn)(double val)){
 //   return val > 0 ? val : 0;
 // }
 void* ReLu(void *val){
-  return *((char*)val) & 0x80  ? val : &zero; //dereference first byte to check sign bit
+  return *((char*)val) & 0x80  ? &zero : val; //dereference first byte to check sign bit
 }
 
 // Leaky ReLu Activattion Function
-float LeLu_f(float val1, float val2){
-  if (val <= 0 || val2 >= 1){
-    return val1 > 0 ? val1 : 0;
-  }
-  val2 *= val1; // change is local so no side effects
-  return val1 > val2 ? val1 : val2;
+float lelu_f(float val1, float alpha){
+  return val1 >= 0 ? val1 : val2*alpha;
 }
-double LeLu_d(double val1){
-  if (val <= 0 || val2 >= 1){
-    return val1 > 0 ? val1 : 0;
-  }
-  val2 *= val1; // change is local so no side effects
-  return val1 > val2 ? val1 : val2;
+double lelu_f(double val1, double alpha){
+  return val1 >= 0 ? val1 : val2*alpha;
 }
 
 // ELU Activation Function
