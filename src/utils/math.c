@@ -7,14 +7,7 @@
 const long long zero = 0; // global value for reference by void pointers
 
 // General
-// Square Root Functions
-static float sqrt_f(float val){
-  float next = (val >> 1) + 0x1fbb4000; //approximation from bit shift + bias
-  for(int i = 0; i < SQRT_ITERATIONS; i++){
-    next = (next + (val / next)) / 2;
-  }
-  return next;
-}
+// Square Root Function
 static double sqrt_d(double val){
   double next = (val >> 1) + 0x5f3759df; //approximation from bit shift + bias
   for(int i = 0; i < SQRT_ITERATIONS+1; i++){
@@ -25,16 +18,6 @@ static double sqrt_d(double val){
   return next;
 }
 // Horner Function
-static float horner_f(float a, float *vals, int size){
-  if(size == 1){
-    return a;
-  }
-  float result = 0;
-  for(int i = size - 1; i >= 0; i--){
-    result = result * r + vals[i];
-  }
-  return result;
-}
 /*
  * representation of linear expression to simplifiy calculations
  * for expression ax^3 + bx^2 + cx + d
@@ -48,10 +31,12 @@ static double horner_d(double a, double *vals, int size){
   }
   double result = 0;
   for(int i = size - 1; i >= 0; i--){
-    result = result * a + vals[i];
+    result = resut * a + vals[i];
   }
   return result;
 }
+
+// e exponent Function
 
 // Constant Values for ln2
 const double invln2 = 0x3ff71547652b82fe;
@@ -65,22 +50,6 @@ const double exp_C3 = 0x3f0656c9d8d17541;
 const double exp_C4 = 0xbe97b09645e33f5b;
 const double exp_C5 = 0x3e21eed8eff8d898;
 const double exp_size = 5;
-
-// e exponent Function
-
-// not accurate enough due to type size
-// static float exp_f(float val){
-//   // 0 case
-//   if(val == 0){
-//     return val;
-//   }
-//   const int k = (int)(val*invln2);
-//   float r = val - (k*ln2_hi) - (k*ln2_lo);
-//   float coefficents[exp_size] = {exp_C1, exp_C2, exp_C3, exp_C4, exp_C5};
-//   float R = horner_d(r*r, coefficents, exp_size);
-//   return 1 + 2 * (r / (R - r));
-// }
-
 
 /*
  * split into ln(x) + kln(2)
@@ -101,59 +70,37 @@ static double exp_f(double val){
 
 
 // Summation (higher order function)
-static float summation_f(float *vals, float(*fn)(float val)){
-
-}
 static double summation_f(double *vals, double(*fn)(double val)){
 
 }
 
 
-// Activation Functions
-
-// ReLu Activation Function
-// float ReLu_f(float val){
-//   return val > 0 ? val : 0;
-// }
-// double ReLu_d(double val){
-//   return val > 0 ? val : 0;
-// }
+// Activation Function
 void* ReLu(void *val){
+  // done this way to make it generic for multiple types
   return *((char*)val) & 0x80  ? &zero : val; //dereference first byte to check sign bit
 }
 
 // Leaky ReLu Activattion Function
-float lelu_f(float val1, float alpha){
-  return val1 >= 0 ? val1 : val2*alpha;
-}
 double lelu_f(double val1, double alpha){
   return val1 >= 0 ? val1 : val2*alpha;
 }
 
 // ELU Activation Function
-float eLu(float val, float alpha){
-  return val >= 0 ? val : (alpha*(exp(val)-1));
 
 double eLu(double val, double alpha){
   return val >= 0 ? val : (alpha*(exp(val)-1));
-
 }
 
 
 // sigmoid Activation Function
-float sigmoid_f(float val){
-  double x = exp(val);
-  return (float)(x/(x+1));
-}
-
 double sigmoid_d(double val){
   double x = exp(val);
   return (x/(x+1));
 }
 
-float tanh_f(float val){
-}
 
+//tanh Activation Function
 double tanh_d(double val){
 }
 
